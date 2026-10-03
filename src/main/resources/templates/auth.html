@@ -1,0 +1,201 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<title>AuthKit - Login / Sign Up</title>
+	<style>
+		* { box-sizing: border-box; }
+
+		body {
+			margin: 0;
+			min-height: 100vh;
+			display: flex;
+			align-items: center;
+			justify-content: center;
+			font-family: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+			background: #f1f4f9;
+			color: #1f2937;
+			padding: 16px;
+		}
+
+		.card {
+			width: 100%;
+			max-width: 400px;
+			background: #fff;
+			border-radius: 12px;
+			box-shadow: 0 10px 30px rgba(0, 0, 0, 0.08);
+			overflow: hidden;
+		}
+
+		.tabs { display: flex; }
+
+		.tab {
+			flex: 1;
+			padding: 16px;
+			border: none;
+			background: #f9fafb;
+			font-size: 15px;
+			font-weight: 600;
+			color: #6b7280;
+			cursor: pointer;
+			border-bottom: 2px solid #e5e7eb;
+		}
+
+		.tab.active {
+			background: #fff;
+			color: #2563eb;
+			border-bottom-color: #2563eb;
+		}
+
+		form {
+			display: none;
+			padding: 28px;
+		}
+
+		form.active { display: block; }
+
+		h1 {
+			margin: 0 0 20px;
+			font-size: 22px;
+		}
+
+		label {
+			display: block;
+			margin-bottom: 6px;
+			font-size: 14px;
+			font-weight: 500;
+		}
+
+		input {
+			width: 100%;
+			padding: 10px 12px;
+			margin-bottom: 16px;
+			border: 1px solid #d1d5db;
+			border-radius: 8px;
+			font-size: 15px;
+		}
+
+		input:focus {
+			outline: none;
+			border-color: #2563eb;
+			box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.15);
+		}
+
+		.submit {
+			width: 100%;
+			padding: 12px;
+			border: none;
+			border-radius: 8px;
+			background: #2563eb;
+			color: #fff;
+			font-size: 15px;
+			font-weight: 600;
+			cursor: pointer;
+		}
+
+		.submit:hover { background: #1d4ed8; }
+
+		.switch {
+			margin: 16px 0 0;
+			text-align: center;
+			font-size: 14px;
+			color: #6b7280;
+		}
+
+		.switch a {
+			color: #2563eb;
+			text-decoration: none;
+			font-weight: 500;
+		}
+
+		.error {
+			margin: -8px 0 16px;
+			font-size: 13px;
+			color: #dc2626;
+			min-height: 0;
+		}
+	</style>
+</head>
+<body>
+	<div class="card">
+		<div class="tabs">
+			<button type="button" class="tab active" data-target="login">Login</button>
+			<button type="button" class="tab" data-target="signup">Sign Up</button>
+		</div>
+
+		<form id="login" class="active" method="post" th:action="@{/login}">
+			<h1>Welcome back</h1>
+
+			<label for="login-email">Email</label>
+			<input type="email" id="login-email" name="email" autocomplete="email" required>
+
+			<label for="login-password">Password</label>
+			<input type="password" id="login-password" name="password" autocomplete="current-password" required>
+
+			<button type="submit" class="submit">Login</button>
+
+			<p class="switch">Don't have an account? <a href="#signup">Sign up</a></p>
+		</form>
+
+		<form id="signup" method="post" th:action="@{/signup}">
+			<h1>Create an account</h1>
+
+			<label for="signup-name">Full name</label>
+			<input type="text" id="signup-name" name="name" autocomplete="name" required>
+
+			<label for="signup-email">Email</label>
+			<input type="email" id="signup-email" name="email" autocomplete="email" required>
+
+			<label for="signup-password">Password</label>
+			<input type="password" id="signup-password" name="password" autocomplete="new-password" minlength="8" required>
+
+			<label for="signup-confirm">Confirm password</label>
+			<input type="password" id="signup-confirm" name="confirmPassword" autocomplete="new-password" minlength="8" required>
+			<p class="error" id="signup-error"></p>
+
+			<button type="submit" class="submit">Sign Up</button>
+
+			<p class="switch">Already have an account? <a href="#login">Login</a></p>
+		</form>
+	</div>
+
+	<script>
+		function show(target) {
+			document.querySelectorAll('.tab').forEach(function (t) {
+				t.classList.toggle('active', t.dataset.target === target);
+			});
+			document.querySelectorAll('form').forEach(function (f) {
+				f.classList.toggle('active', f.id === target);
+			});
+		}
+
+		document.querySelectorAll('.tab').forEach(function (tab) {
+			tab.addEventListener('click', function () {
+				history.replaceState(null, '', '#' + tab.dataset.target);
+				show(tab.dataset.target);
+			});
+		});
+
+		window.addEventListener('hashchange', function () {
+			show(location.hash === '#signup' ? 'signup' : 'login');
+		});
+
+		if (location.hash === '#signup') {
+			show('signup');
+		}
+
+		document.getElementById('signup').addEventListener('submit', function (e) {
+			var password = document.getElementById('signup-password').value;
+			var confirm = document.getElementById('signup-confirm').value;
+			var error = document.getElementById('signup-error');
+			if (password !== confirm) {
+				e.preventDefault();
+				error.textContent = 'Passwords do not match.';
+			} else {
+				error.textContent = '';
+			}
+		});
+	</script>
+</body>
+</html>
