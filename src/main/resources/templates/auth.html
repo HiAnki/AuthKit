@@ -117,7 +117,7 @@
 		}
 	</style>
 </head>
-<body>
+<body th:attr="data-active-tab=${activeTab}">
 	<div class="card">
 		<div class="tabs">
 			<button type="button" class="tab active" data-target="login">Login</button>
@@ -128,10 +128,11 @@
 			<h1>Welcome back</h1>
 
 			<label for="login-email">Email</label>
-			<input type="email" id="login-email" name="email" autocomplete="email" required>
+			<input type="email" id="login-email" name="username" autocomplete="email" required>
 
 			<label for="login-password">Password</label>
 			<input type="password" id="login-password" name="password" autocomplete="current-password" required>
+			<p class="error" th:if="${activeTab == 'login'}" th:text="${error}"></p>
 
 			<button type="submit" class="submit">Login</button>
 
@@ -145,14 +146,14 @@
 			<input type="text" id="signup-name" name="name" autocomplete="name" required>
 
 			<label for="signup-email">Email</label>
-			<input type="email" id="signup-email" name="email" autocomplete="email" required>
+			<input type="email" id="signup-email" name="username" autocomplete="email" required>
 
 			<label for="signup-password">Password</label>
 			<input type="password" id="signup-password" name="password" autocomplete="new-password" minlength="8" required>
 
 			<label for="signup-confirm">Confirm password</label>
 			<input type="password" id="signup-confirm" name="confirmPassword" autocomplete="new-password" minlength="8" required>
-			<p class="error" id="signup-error"></p>
+			<p class="error" id="signup-error" th:text="${activeTab == 'signup'} ? ${error} : ''"></p>
 
 			<button type="submit" class="submit">Sign Up</button>
 
@@ -181,7 +182,10 @@
 			show(location.hash === '#signup' ? 'signup' : 'login');
 		});
 
-		if (location.hash === '#signup') {
+		var activeTab = document.body.dataset.activeTab;
+		if (activeTab) {
+			show(activeTab);
+		} else if (location.hash === '#signup') {
 			show('signup');
 		}
 

@@ -1,0 +1,125 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<title>AuthKit - Home</title>
+	<style>
+		* { box-sizing: border-box; }
+
+		body {
+			margin: 0;
+			min-height: 100vh;
+			display: flex;
+			align-items: center;
+			justify-content: center;
+			font-family: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+			background: #f1f4f9;
+			color: #1f2937;
+			padding: 16px;
+		}
+
+		.card {
+			width: 100%;
+			max-width: 480px;
+			background: #fff;
+			border-radius: 12px;
+			box-shadow: 0 10px 30px rgba(0, 0, 0, 0.08);
+			padding: 28px;
+		}
+
+		h1 {
+			margin: 0 0 8px;
+			font-size: 22px;
+		}
+
+		.status {
+			margin: 0 0 20px;
+			font-size: 14px;
+			color: #6b7280;
+		}
+
+		#protected {
+			padding: 16px;
+			margin-bottom: 20px;
+			border: 1px dashed #d1d5db;
+			border-radius: 8px;
+			min-height: 60px;
+		}
+
+		.actions { display: flex; gap: 12px; }
+
+		.button {
+			flex: 1;
+			padding: 12px;
+			border: none;
+			border-radius: 8px;
+			background: #2563eb;
+			color: #fff;
+			font-size: 15px;
+			font-weight: 600;
+			text-align: center;
+			text-decoration: none;
+			cursor: pointer;
+		}
+
+		.button:hover { background: #1d4ed8; }
+
+		.button.secondary {
+			background: #f3f4f6;
+			color: #1f2937;
+		}
+
+		.button.secondary:hover { background: #e5e7eb; }
+	</style>
+</head>
+<body>
+	<div class="card">
+		<h1>Home</h1>
+		<p class="status" id="status">Loading protected content…</p>
+
+		<div id="protected"></div>
+
+		<div class="actions">
+			<button type="button" class="button" id="reload">Call /test again</button>
+			<a class="button secondary" th:href="@{/logout}">Logout</a>
+		</div>
+	</div>
+
+	<script>
+		var statusEl = document.getElementById('status');
+		var protectedEl = document.getElementById('protected');
+
+		// Calls /test; on 401 (JWT expired) gets a fresh JWT from /token and retries once.
+		async function loadProtected(allowRefresh) {
+			var res = await fetch('/test', { credentials: 'same-origin' });
+
+			if (res.ok) {
+				var doc = new DOMParser().parseFromString(await res.text(), 'text/html');
+				protectedEl.innerHTML = doc.body.innerHTML;
+				statusEl.textContent = 'Authenticated at ' + new Date().toLocaleTimeString();
+				return;
+			}
+
+			if (res.status === 401 && allowRefresh) {
+				statusEl.textContent = 'Session token expired, refreshing…';
+				var refresh = await fetch('/token', { credentials: 'same-origin' });
+				if (refresh.status === 204) {
+					return loadProtected(false);
+				}
+				// Refresh token expired: /token redirected to the logout page
+				window.location.href = refresh.redirected ? refresh.url : '/auth';
+				return;
+			}
+
+			window.location.href = '/auth';
+		}
+
+		document.getElementById('reload').addEventListener('click', function () {
+			loadProtected(true);
+		});
+
+		loadProtected(true);
+	</script>
+</body>
+</html>

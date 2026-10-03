@@ -1,0 +1,14 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+	<meta charset="UTF-8">
+	<title>AuthKit - Protected</title>
+</head>
+<body>
+	<h2 style="margin: 0 0 8px; font-size: 18px;">Protected page</h2>
+	<p style="margin: 0;">
+		You are signed in as <strong th:text="${user.name}">Name</strong>
+		(<span th:text="${user.username}">email</span>).
+	</p>
+</body>
+</html>
